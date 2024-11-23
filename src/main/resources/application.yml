@@ -1,0 +1,23 @@
+server:
+ port: 8080
+
+spring:
+  application:
+    name: api-gateway-app
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${ISSUER_URI:http://localhost:8087/realms/developer_business_card}
+  cloud:
+    gateway:
+      routes:
+        - id: sso_route
+          uri: ${app.hosts.sso}
+          predicates:
+            - Path=/auth/token, /auth/refresh, /users
+            - Method=POST
+
+app:
+  hosts:
+    sso: ${SSO_HOST:http://localhost:8081}

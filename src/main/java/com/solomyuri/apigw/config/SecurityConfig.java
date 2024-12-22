@@ -14,15 +14,15 @@ import com.solomyuri.apigw.exception.AuthErrorHandler;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
-	private final String[] permitList = { "/auth/token", "/auth/refresh", "/users" };
+	private final String[] permitList = { "/api/sso/auth/token", "/api/sso/auth/refresh", "/api/sso/users" };
 
 	@Bean
-	SecurityWebFilterChain filterChain(ServerHttpSecurity http, AuthErrorHandler authErrorHandler) throws Exception {
+	SecurityWebFilterChain filterChain(ServerHttpSecurity http, AuthErrorHandler authErrorHandler) {
 
 		http.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 		http.authorizeExchange(
 				auth -> auth.pathMatchers(HttpMethod.POST, permitList).permitAll().anyExchange().authenticated());
-		http.csrf(csrf -> csrf.disable());
+		http.csrf(ServerHttpSecurity.CsrfSpec::disable);
 		http.exceptionHandling(ex -> ex.authenticationEntryPoint(authErrorHandler));
 
 		return http.build();

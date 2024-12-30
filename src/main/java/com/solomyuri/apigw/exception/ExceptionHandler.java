@@ -12,16 +12,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.server.RequestPredicates;
-import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
-import org.springframework.web.reactive.function.server.ServerRequest;
-import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.reactive.function.server.*;
 import org.springframework.web.server.ResponseStatusException;
-
 import reactor.core.publisher.Mono;
 
-@Component
+import java.net.ConnectException;
+
+@Component()
 public class ExceptionHandler extends AbstractErrorWebExceptionHandler {
 
 	private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
@@ -47,6 +44,8 @@ public class ExceptionHandler extends AbstractErrorWebExceptionHandler {
 
 		if (error instanceof ResponseStatusException responseStatusException)
 			httpStatus = HttpStatus.valueOf(responseStatusException.getStatusCode().value());
+		else if (error instanceof ConnectException)
+			httpStatus = HttpStatus.BAD_GATEWAY;
 		else
 			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 

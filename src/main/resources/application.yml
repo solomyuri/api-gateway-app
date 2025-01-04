@@ -1,0 +1,36 @@
+server:
+ port: 8080
+
+spring:
+  application:
+    name: api-gateway-app
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${ISSUER_URI:http://localhost:8087/realms/developer_business_card}
+  cloud:
+    gateway:
+      routes:
+        - id: sso_route
+          uri: ${app.hosts.sso}
+          predicates:
+            - Path=/api/sso/auth/token, /api/sso/auth/refresh, /api/sso/users
+            - Method=POST
+          filters:
+            - RewritePath=/api/sso/(?<remaining>.*), /eapi/sso-client-app/${remaining}
+        - id: game_route
+          uri: ${app.hosts.game}
+          predicates:
+            - Path=/api/game/**
+          filters:
+            - RewritePath=/api/game/(?<remaining>.*), /eapi/game-service-app/${remaining}
+
+app:
+  hosts:
+    sso: ${SSO_HOST:http://localhost:8081}
+    game: ${GAME_HOST:http://localhost:8082}
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG

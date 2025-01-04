@@ -17,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 import java.net.ConnectException;
+import java.util.Objects;
 
 @Component()
 public class ExceptionHandler extends AbstractErrorWebExceptionHandler {
@@ -49,9 +50,13 @@ public class ExceptionHandler extends AbstractErrorWebExceptionHandler {
 		else
 			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 
+		String	message = Objects.equals(httpStatus, HttpStatus.BAD_GATEWAY)
+					? "Bad gateway"
+					: error.getMessage();
+
 		return ServerResponse.status(httpStatus)
 				.contentType(MediaType.APPLICATION_JSON)
-				.body(BodyInserters.fromValue(new ErrorResponse(httpStatus.value(), error.getMessage())));
+				.body(BodyInserters.fromValue(new ErrorResponse(httpStatus.value(), message)));
 	}
 
 }

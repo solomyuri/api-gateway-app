@@ -11,20 +11,22 @@ spring:
           issuer-uri: ${ISSUER_URI:http://localhost:8087/realms/developer_business_card}
   cloud:
     gateway:
-      routes:
-        - id: sso_route
-          uri: ${app.hosts.sso}
-          predicates:
-            - Path=/api/sso/auth/token, /api/sso/auth/refresh, /api/sso/users
-            - Method=POST
-          filters:
-            - RewritePath=/api/sso/(?<remaining>.*), /eapi/sso-client-app/${remaining}
-        - id: game_route
-          uri: ${app.hosts.game}
-          predicates:
-            - Path=/api/game/**
-          filters:
-            - RewritePath=/api/game/(?<remaining>.*), /eapi/game-service-app/${remaining}
+      server:
+        webflux:
+          routes:
+            - id: sso_route
+              uri: ${app.hosts.sso}
+              predicates:
+                - Path=/api/sso/auth/token, /api/sso/auth/refresh, /api/sso/users
+                - Method=POST
+              filters:
+                - RewritePath=/api/sso/(?<remaining>.*), /eapi/sso-client-app/${remaining}
+            - id: game_route
+              uri: ${app.hosts.game}
+              predicates:
+                - Path=/api/game/**
+              filters:
+                - RewritePath=/api/game/(?<remaining>.*), /eapi/game-service-app/${remaining}
 
 app:
   hosts:
